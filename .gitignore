@@ -1,0 +1,6 @@
+venv
+media
+__pycache__
+*.typ
+*.pdf
+*.svg
