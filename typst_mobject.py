@@ -9,6 +9,7 @@ def str_to_valid_filename(s: str):
 
 def common_str_to_typst_str(common_str: str, font_size: int = 24, color: str = WHITE):
     template = rf"""#set text(fill: rgb("{color}"), size: {font_size}pt)
+#set page(width: 1000pt)
 
 {common_str}"""
     return template
@@ -55,17 +56,21 @@ def common_str_to_svg(common_str: str, font_size: int = 48, color: str = WHITE):
 class Typst(SVGMobject):
     def __init__(self, common_str, font_size=48, font_color=WHITE, **kwargs):
         svg_file_path = common_str_to_svg(common_str, font_size, font_color)
-        super().__init__(svg_file_path, height=24 / font_size, **kwargs)
+        super().__init__(svg_file_path, height=None, **kwargs)
+        self.scale(1 / 100)
 
 
 class MathTypst(Typst):
     def __init__(self, math_str, font_size=48, font_color=WHITE, **kwargs):
         super().__init__(math_str_to_common_str(math_str), font_size, font_color, **kwargs)
-        
+
 
 class TypstScene(Scene):
     def construct(self):
         txt = Typst("Hello, World!")
         math = MathTypst("x^2 + y^2 = z^2")
-        vg = VGroup(txt, math).arrange(DOWN)
-        self.play(Succession(*[Write(m) for m in vg]))
+        VGroup(txt, math).arrange(DOWN)
+        self.play(LaggedStartMap(FadeIn, txt, scale=2))
+        self.wait()
+        self.play(Write(math))
+        self.wait()
